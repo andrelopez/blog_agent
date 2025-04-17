@@ -74,5 +74,17 @@ Password: password
 Database: n8n
 ```
 
+## Blog Scraper & Ingestion Service (Python/FastAPI)
+
+A new microservice will be added to handle scraping Bitovi blog articles, extracting clean text and metadata, and storing them in Postgres for downstream RAG workflows. This service will:
+- Parse Bitovi's sitemap to extract all /blog/ URLs
+- Fetch and clean each blog post (remove HTML)
+- Collect metadata (title, date, tags, URL)
+- Store results in Postgres
+- Implement polite scraping (200ms delay, error handling, retries)
+- Allow scheduling via environment variable
+
+**Setup instructions will be added here once the service is implemented.**
+
 ## Conclusion
 Have fun n8n-ing!

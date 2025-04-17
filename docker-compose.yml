@@ -7,3 +7,13 @@ services:
     environment:
       - N8N_LOG_LEVEL=debug
       - N8N_METRICS=true
+
+  blog_ingest:
+    build: ./blog_ingest
+    ports:
+      - 8000:8000
+    restart: unless-stopped
+    # environment:
+    #   - EXAMPLE_ENV_VAR=value
+    # depends_on:
+    #   - postgres
