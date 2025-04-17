@@ -3,4 +3,7 @@ uvicorn[standard]
 requests
 beautifulsoup4
 python-dateutil
-rake-nltk 
+psycopg2-binary
+rake-nltk
+pytest
+httpx 

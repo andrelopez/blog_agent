@@ -33,4 +33,4 @@ done
 echo "Running: docker-compose $COMPOSE_FILES up --build -d --remove-orphans"
 
 # Run docker-compose up with all the compose files
-docker-compose $COMPOSE_FILES up --build -d --remove-orphans
+docker compose $COMPOSE_FILES up --build -d --remove-orphans
