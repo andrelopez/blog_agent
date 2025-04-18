@@ -13,6 +13,8 @@ services:
     ports:
       - 8000:8000
     restart: unless-stopped
+    env_file:
+      - .env
     # environment:
     #   - EXAMPLE_ENV_VAR=value
     # depends_on:

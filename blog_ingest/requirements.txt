@@ -9,4 +9,6 @@ pytest
 httpx
 qdrant-client
 apscheduler
-fastembed 
+fastembed
+pydantic
+openai

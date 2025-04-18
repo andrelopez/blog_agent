@@ -71,8 +71,6 @@ def fetch_and_parse_blogs():
             articles.append(article)
             insert_blog_article(conn, article)
             time.sleep(0.2)
-            if len(articles) >= 3:
-                break
         except Exception as e:
             logger.error(f"Error processing {url}: {e}")
             continue
