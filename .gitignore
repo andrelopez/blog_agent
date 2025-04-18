@@ -10,3 +10,5 @@
 # Data volumes
 .n8n
 .cache
+
+.env
