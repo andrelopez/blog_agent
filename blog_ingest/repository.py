@@ -26,6 +26,7 @@ def ensure_blog_articles_table(conn):
                 date_modified TIMESTAMP,
                 author TEXT,
                 description TEXT,
+                tags TEXT[],
                 text TEXT
             );
         ''')
@@ -34,14 +35,15 @@ def ensure_blog_articles_table(conn):
 def insert_blog_article(conn, article):
     with conn.cursor() as cur:
         cur.execute('''
-            INSERT INTO blog_articles (url, title, date_published, date_modified, author, description, text)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            INSERT INTO blog_articles (url, title, date_published, date_modified, author, description, tags, text)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             ON CONFLICT (url) DO UPDATE SET
                 title = EXCLUDED.title,
                 date_published = EXCLUDED.date_published,
                 date_modified = EXCLUDED.date_modified,
                 author = EXCLUDED.author,
                 description = EXCLUDED.description,
+                tags = EXCLUDED.tags,
                 text = EXCLUDED.text;
         ''', (
             article['url'],
@@ -50,6 +52,7 @@ def insert_blog_article(conn, article):
             article['date_modified'],
             article['author'],
             article['description'],
+            article.get('tags', []),
             article['text']
         ))
         conn.commit() 

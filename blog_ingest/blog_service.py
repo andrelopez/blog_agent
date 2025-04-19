@@ -76,9 +76,12 @@ def fetch_and_parse_blogs():
             if not date_published:
                 logger.error(f"Skipping {url}: missing metadata")
                 continue
+            # Extract tags/topics from <a rel="tag">
+            tags = [a.get_text(strip=True) for a in soup.find_all('a', rel='tag')]
             # Extract main text
             main = soup.find('article') or soup.find('main') or soup.body
-            text = main.get_text(separator=' ', strip=True) if main else ''
+            pre_text = main.get_text(separator=' ', strip=True) if main else ''
+            text = f"Title: {title} - Author: {author} - Date created: {date_published} - Tags: {', '.join(tags)} - {pre_text}"
             article = {
                 'url': url,
                 'title': title,
@@ -86,9 +89,10 @@ def fetch_and_parse_blogs():
                 'date_modified': date_modified,
                 'author': author,
                 'description': description,
+                'tags': tags,
                 'text': text,
                 'text_length': len(text),
-                'text_preview': text[:200]
+                'text_preview': pre_text[:200]
             }
             articles.append(article)
             insert_blog_article(conn, article)

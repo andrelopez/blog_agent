@@ -21,7 +21,7 @@ def ingest():
 def answer(request: AnswerRequest):
     question = request.question
     try:
-        articles = hybrid_search(question, top_k=3)
+        articles = hybrid_search(question, top_k=20)
         answer_text = generate_rag_answer(question, articles)
         return JSONResponse({
             "question": question,

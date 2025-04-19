@@ -31,13 +31,18 @@ def ensure_qdrant_collection(client, vector_size):
 def embed_and_store_in_qdrant(articles):
     model = get_local_embedding_model()
     # Get embedding size from a sample embedding
-    sample_embedding = list(model.embed([articles[0]["text"]]))[0]
+    sample_article = articles[0]
+    sample_text = f"{sample_article.get('title', '')}\n{sample_article.get('author', '')}\n{sample_article.get('date_published', '')}\n{sample_article.get('description', '')}\n{' '.join(sample_article.get('tags', []))}\n{sample_article['text']}"
+    sample_embedding = list(model.embed([sample_text]))[0]
     ensure_qdrant_collection(get_qdrant_client(), vector_size=len(sample_embedding))
     client = get_qdrant_client()
     points = []
     for i in range(0, len(articles), BATCH_SIZE):
         batch = articles[i:i+BATCH_SIZE]
-        texts = [a["text"] for a in batch]
+        texts = [
+            f"{a.get('title', '')}\n{a.get('author', '')}\n{a.get('date_published', '')}\n{a.get('description', '')}\n{' '.join(a.get('tags', []))}\n{a['text']}"
+            for a in batch
+        ]
         embeddings = list(model.embed(texts))
         for article, embedding in zip(batch, embeddings):
             point_id = str(uuid.uuid5(uuid.NAMESPACE_URL, article["url"]))
@@ -51,6 +56,7 @@ def embed_and_store_in_qdrant(articles):
                     "date_modified": str(article["date_modified"]),
                     "author": article["author"],
                     "description": article["description"],
+                    "tags": article.get("tags", []),
                     "text": article["text"]
                 }
             ))
@@ -84,7 +90,7 @@ def get_all_articles_sorted_by_date(order='desc'):
     articles.sort(key=parse_date, reverse=(order=='desc'))
     return articles
 
-def hybrid_search(question, top_k=3):
+def hybrid_search(question, top_k=20):
     """
     If the question is about latest/oldest, return articles sorted by date. Otherwise, do semantic search.
     """
@@ -95,7 +101,7 @@ def hybrid_search(question, top_k=3):
     else:
         return semantic_search(question, top_k=top_k)
 
-def semantic_search(question, top_k=3):
+def semantic_search(question, top_k=20):
     """
     Embed the question, search Qdrant for top_k most similar articles, and return their payloads.
     """
@@ -126,7 +132,14 @@ def generate_rag_answer(question, articles):
     # Build the context string from the top articles
     context = ""
     for idx, a in enumerate(articles, 1):
-        context += f"[{idx}] Title: {a.get('title')}\nURL: {a.get('url')}\nContent: {a.get('text')[:500]}...\n\n"
+        context += (
+            f"[{idx}] Title: {a.get('title')}\n"
+            f"Author: {a.get('author')}\n"
+            f"Date: {a.get('date_published')}\n"
+            f"Tags: {', '.join(a.get('tags', []))}\n"
+            f"URL: {a.get('url')}\n"
+            f"Content: {a.get('text')[:1000]}...\n\n"
+        )
     # Build the prompt
     prompt = (
         f"You are an expert assistant. Use the following blog articles as context to answer the user's question. "
