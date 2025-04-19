@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from blog_service import fetch_and_parse_blogs
-from embedding_service import semantic_search, generate_rag_answer
+from embedding_service import hybrid_search, generate_rag_answer
 
 app = FastAPI()
 
@@ -21,7 +21,7 @@ def ingest():
 def answer(request: AnswerRequest):
     question = request.question
     try:
-        articles = semantic_search(question, top_k=3)
+        articles = hybrid_search(question, top_k=3)
         answer_text = generate_rag_answer(question, articles)
         return JSONResponse({
             "question": question,

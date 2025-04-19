@@ -14,7 +14,7 @@ API_URL = "http://blog_ingest:8000/ingest"  # Use service name for Docker networ
 def run_ingestion_and_embedding():
     logger.info("Running Ingestion task...")
     try:
-        resp = requests.post(API_URL, timeout=60)
+        resp = requests.post(API_URL, timeout=600)
         resp.raise_for_status()
         data = resp.json()
         logger.info(f"Ingestion complete. URLs ingested: {data.get('count')}")
@@ -56,7 +56,7 @@ def run_ingestion_and_embedding():
 
 def main():
     scheduler = BlockingScheduler()
-    scheduler.add_job(run_ingestion_and_embedding, 'interval', minutes=1)
+    scheduler.add_job(run_ingestion_and_embedding, 'interval', days=1)
     logger.info("Scheduler started. Will run ingestion and embedding every 24 hours.")
     try:
         scheduler.start()

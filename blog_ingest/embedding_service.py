@@ -4,6 +4,8 @@ from qdrant_client.models import PointStruct, VectorParams, Distance
 import os
 import uuid
 import openai
+import re
+from datetime import datetime
 
 QDRANT_HOST = os.getenv("QDRANT_HOST", "qdrant")
 QDRANT_PORT = int(os.getenv("QDRANT_PORT", 6333))
@@ -53,6 +55,45 @@ def embed_and_store_in_qdrant(articles):
                 }
             ))
     client.upsert(collection_name=QDRANT_COLLECTION, points=points)
+
+def detect_date_sort_order(question):
+    """
+    Returns 'desc' for latest/newest/most recent, 'asc' for oldest/first, or None for normal semantic search.
+    """
+    if re.search(r'latest|newest|most recent', question, re.IGNORECASE):
+        return 'desc'
+    if re.search(r'oldest|first', question, re.IGNORECASE):
+        return 'asc'
+    return None
+
+def get_all_articles_sorted_by_date(order='desc'):
+    """
+    Fetch all articles from Qdrant and sort by date_published (order: 'asc' or 'desc').
+    """
+    client = get_qdrant_client()
+    # Scroll all points (no vector search)
+    points, _ = client.scroll(collection_name=QDRANT_COLLECTION, with_payload=True, limit=10000)
+    def parse_date(article):
+        d = article.get('date_published')
+        try:
+            return datetime.fromisoformat(d) if d else datetime.min
+        except Exception:
+            return datetime.min
+    articles = [p.payload for p in points]
+    articles = [a for a in articles if a.get('date_published')]
+    articles.sort(key=parse_date, reverse=(order=='desc'))
+    return articles
+
+def hybrid_search(question, top_k=3):
+    """
+    If the question is about latest/oldest, return articles sorted by date. Otherwise, do semantic search.
+    """
+    order = detect_date_sort_order(question)
+    if order:
+        articles = get_all_articles_sorted_by_date(order=order)
+        return articles[:top_k]
+    else:
+        return semantic_search(question, top_k=top_k)
 
 def semantic_search(question, top_k=3):
     """

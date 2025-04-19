@@ -46,7 +46,8 @@ def fetch_and_parse_blogs():
             for json_ld in json_ld_tags:
                 try:
                     data = json.loads(json_ld.string)
-                    if isinstance(data, dict) and 'datePublished' in data:
+                    # Only use JSON-LD blocks that are BlogPosting
+                    if isinstance(data, dict) and data.get('@type') == 'BlogPosting':
                         date_published = normalize_date(data.get('datePublished'))
                         date_modified = normalize_date(data.get('dateModified'))
                         author = data.get('author', {}).get('name') if isinstance(data.get('author'), dict) else None
@@ -54,6 +55,27 @@ def fetch_and_parse_blogs():
                         break
                 except Exception:
                     continue
+            # Fallback: Published date from <time>
+            if not date_published:
+                time_tag = soup.find('time')
+                if time_tag and time_tag.text.strip():
+                    date_published = normalize_date(time_tag.text.strip())
+
+            # Fallback: Author from <p class="text-[16px] font-bold">
+            if not author:
+                author_tag = soup.find('p', class_='text-[16px] font-bold')
+                if author_tag and author_tag.text.strip():
+                    author = author_tag.text.strip()
+            # Fallback: Description from <meta name="description">
+            if not description:
+                desc_tag = soup.find('meta', attrs={'name': 'description'})
+                if desc_tag and desc_tag.get('content'):
+                    description = desc_tag['content']
+              # we are unable to get date_published, let's skip this article:
+            
+            if not date_published:
+                logger.error(f"Skipping {url}: missing metadata")
+                continue
             # Extract main text
             main = soup.find('article') or soup.find('main') or soup.body
             text = main.get_text(separator=' ', strip=True) if main else ''
