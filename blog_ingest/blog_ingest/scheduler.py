@@ -2,8 +2,8 @@ import logging
 import requests
 from datetime import datetime
 from apscheduler.schedulers.blocking import BlockingScheduler
-from repository import get_pg_connection
-from embedding_service import embed_and_store_in_qdrant
+from .repository import get_pg_connection
+from .embedding_service import embed_and_store_in_qdrant
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

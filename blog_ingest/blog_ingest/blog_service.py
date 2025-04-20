@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup
 import json
 from dateutil import parser as dateparser
 import logging
-from repository import get_pg_connection, ensure_blog_articles_table, insert_blog_article
+from .repository import get_pg_connection, ensure_blog_articles_table, insert_blog_article
 
 SITEMAP_URL = "https://www.bitovi.com/sitemap.xml"
 

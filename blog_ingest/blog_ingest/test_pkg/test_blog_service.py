@@ -2,6 +2,11 @@ import pytest
 from blog_ingest.blog_service import normalize_date, fetch_and_parse_blogs
 from unittest.mock import patch, MagicMock
 import datetime
+import os
+
+def load_html(filename):
+    with open(filename, encoding='utf-8') as f:
+        return f.read()
 
 # Test normalize_date
 @pytest.mark.parametrize("input_date,expected", [
@@ -18,27 +23,28 @@ def test_normalize_date(input_date, expected):
         # Only compare up to seconds for ISO format
         assert result[:19] == expected
 
-# Test fetch_and_parse_blogs with mocks
+# Test fetch_and_parse_blogs with HTML mock file
 @patch("blog_ingest.blog_service.requests.get")
 @patch("blog_ingest.blog_service.get_pg_connection")
 @patch("blog_ingest.blog_service.ensure_blog_articles_table")
 @patch("blog_ingest.blog_service.insert_blog_article")
-def test_fetch_and_parse_blogs(mock_insert, mock_ensure, mock_conn, mock_requests):
-    # Mock sitemap response
-    sitemap_xml = '''<?xml version=\"1.0\" encoding=\"UTF-8\"?>
-    <urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">
+def test_fetch_and_parse_blogs_with_html(mock_insert, mock_ensure, mock_conn, mock_requests):
+    sitemap_xml = '''<?xml version="1.0" encoding="UTF-8"?>
+    <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
       <url><loc>https://www.bitovi.com/blog/test-article</loc></url>
     </urlset>'''
+    html_path = os.path.join(os.path.dirname(__file__), "test_html", "sample_bitovi_blog.html")
+    html = load_html(html_path)
     mock_requests.side_effect = [
         MagicMock(status_code=200, content=sitemap_xml.encode()),
-        MagicMock(status_code=200, content=b"<html><head><title>Test</title></head><body><article>Test content</article><script type='application/ld+json'>{\"datePublished\": \"2024-03-07 14:00:00\", \"author\": {\"name\": \"Author\"}, \"description\": \"desc\"}</script></body></html>")
+        MagicMock(status_code=200, content=html.encode())
     ]
     result = fetch_and_parse_blogs()
     assert result["count"] == 1
-    assert len(result["sample_articles"]) == 1
     article = result["sample_articles"][0]
-    assert article["title"] == "Test"
-    assert article["author"] == "Author"
-    assert article["description"] == "desc"
-    assert "Test content" in article["text_preview"]
+    assert article["title"] == "Comparing Schema Validation Libraries: AJV, Joi, Yup, and Zod"
+    assert article["author"] == "Roy Ayoola"
+    assert "schema validator" in article["description"]
+    assert any("node.js" in t.lower() for t in article["tags"])
+    assert "2023" in article["date_published"]
     mock_insert.assert_called() 

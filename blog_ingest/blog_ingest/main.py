@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
-from blog_service import fetch_and_parse_blogs
-from embedding_service import hybrid_search, generate_rag_answer
+from .blog_service import fetch_and_parse_blogs
+from .embedding_service import hybrid_search, generate_rag_answer
 
 app = FastAPI()
 
