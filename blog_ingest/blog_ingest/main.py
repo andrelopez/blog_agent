@@ -3,6 +3,7 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from .blog_service import fetch_and_parse_blogs
 from .embedding_service import hybrid_search, generate_rag_answer
+from fastapi.staticfiles import StaticFiles
 
 app = FastAPI()
 
@@ -40,4 +41,7 @@ def answer(request: AnswerRequest):
             ]
         })
     except Exception as e:
-        return JSONResponse({"error": str(e)}, status_code=500) 
+        return JSONResponse({"error": str(e)}, status_code=500)
+
+# Serve static files (including index.html)
+app.mount("/", StaticFiles(directory="blog_ingest/static", html=True), name="static") 
