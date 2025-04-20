@@ -25,7 +25,11 @@
     const chatbox = document.getElementById('chatbox');
 
     function linkify(text) {
-      // Replace URLs in the text with clickable links
+      // Replace "Read more: <url>" with clickable link and a break
+      text = text.replace(/Read more: (https?:\/\/[\w\-._~:/?#[\]@!$&'()*+,;=%]+)/g, (match, url) => {
+        return `Read more: <a href="${url}" class="text-blue-600 underline" target="_blank">${url}</a><br>`;
+      });
+      // Also linkify any other URLs not already linked
       const urlRegex = /(https?:\/\/[\w\-._~:/?#[\]@!$&'()*+,;=%]+)/g;
       return text.replace(urlRegex, url => `<a href="${url}" class="text-blue-600 underline" target="_blank">${url}</a>`);
     }
