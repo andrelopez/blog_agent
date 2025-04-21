@@ -1,5 +1,5 @@
 import pytest
-from blog_ingest.blog_service import normalize_date, fetch_and_parse_blogs
+from blog_ingest.services.blog_service import normalize_date, fetch_and_parse_blogs
 from unittest.mock import patch, MagicMock
 import datetime
 import os
@@ -24,10 +24,10 @@ def test_normalize_date(input_date, expected):
         assert result[:19] == expected
 
 # Test fetch_and_parse_blogs with HTML mock file
-@patch("blog_ingest.blog_service.requests.get")
-@patch("blog_ingest.blog_service.get_pg_connection")
-@patch("blog_ingest.blog_service.ensure_blog_articles_table")
-@patch("blog_ingest.blog_service.insert_blog_article")
+@patch("blog_ingest.services.blog_service.requests.get")
+@patch("blog_ingest.services.blog_service.get_pg_connection")
+@patch("blog_ingest.services.blog_service.ensure_blog_articles_table")
+@patch("blog_ingest.services.blog_service.insert_blog_article")
 def test_fetch_and_parse_blogs_with_html(mock_insert, mock_ensure, mock_conn, mock_requests):
     sitemap_xml = '''<?xml version="1.0" encoding="UTF-8"?>
     <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">

@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import patch, MagicMock
-from blog_ingest import embedding_service
+from blog_ingest.services import embedding_service
 
 
 def test_get_local_embedding_model():
@@ -12,8 +12,8 @@ def test_detect_date_sort_order():
     assert embedding_service.detect_date_sort_order('Show me the oldest articles') == 'asc'
     assert embedding_service.detect_date_sort_order('Tell me about FastAPI') is None
 
-@patch('blog_ingest.embedding_service.get_local_embedding_model')
-@patch('blog_ingest.embedding_service.get_qdrant_client')
+@patch('blog_ingest.services.embedding_service.get_local_embedding_model')
+@patch('blog_ingest.services.embedding_service.get_qdrant_client')
 def test_semantic_search(mock_get_qdrant_client, mock_get_local_embedding_model):
     # Mock embedding model
     mock_model = MagicMock()
