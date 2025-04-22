@@ -55,4 +55,29 @@ def insert_blog_article(conn, article):
             article.get('tags', []),
             article['text']
         ))
-        conn.commit() 
+        conn.commit()
+
+def fetch_all_articles_from_db():
+    articles = []
+    try:
+        conn = get_pg_connection()
+        with conn.cursor() as cur:
+            cur.execute("SELECT url, title, date_published, date_modified, author, description, text FROM blog_articles")
+            rows = cur.fetchall()
+            articles = [
+                {
+                    "url": row[0],
+                    "title": row[1],
+                    "date_published": row[2],
+                    "date_modified": row[3],
+                    "author": row[4],
+                    "description": row[5],
+                    "text": row[6],
+                }
+                for row in rows
+            ]
+        conn.close()
+    except Exception as e:
+        # Optionally log or raise
+        raise
+    return articles 

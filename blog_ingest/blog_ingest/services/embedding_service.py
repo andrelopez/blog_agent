@@ -73,14 +73,16 @@ def embed_and_store_in_qdrant(articles):
                 id=point_id,
                 vector=embedding,
                 payload={
-                    "url": article["url"],
-                    "title": article["title"],
-                    "date_published": str(article["date_published"]),
-                    "date_modified": str(article["date_modified"]),
-                    "author": article["author"],
-                    "description": article["description"],
-                    "tags": article.get("tags", []),
-                    "text": article["text"]
+                    "pageContent": article["text"],
+                    "metadata": {
+                        "url": article["url"],
+                        "title": article["title"],
+                        "date_published": str(article["date_published"]),
+                        "date_modified": str(article["date_modified"]),
+                        "author": article["author"],
+                        "description": article["description"],
+                        "tags": article.get("tags", [])
+                    }
                 }
             ))
     client.upsert(collection_name=QDRANT_COLLECTION, points=points)

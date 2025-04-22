@@ -1,22 +1,26 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, BackgroundTasks
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from .services.blog_service import fetch_and_parse_blogs
 from .services.embedding_service import hybrid_search, generate_rag_answer
 from fastapi.staticfiles import StaticFiles
+import uuid
+import logging
 
 app = FastAPI()
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 class AnswerRequest(BaseModel):
     question: str
 
 @app.post("/ingest")
-def ingest():
-    try:
-        result = fetch_and_parse_blogs()
-        return JSONResponse(result)
-    except Exception as e:
-        return JSONResponse({"error": str(e)}, status_code=500)
+def ingest(background_tasks: BackgroundTasks):
+    job_id = str(uuid.uuid4())
+    logger.info(f"Ingestion job started. jobId={job_id}")
+    background_tasks.add_task(fetch_and_parse_blogs)
+    return {"jobId": job_id, "status": "started"}
 
 @app.post("/answer")
 def answer(request: AnswerRequest):

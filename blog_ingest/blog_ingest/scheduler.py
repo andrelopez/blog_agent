@@ -1,8 +1,7 @@
 import logging
 import requests
-from datetime import datetime
 from apscheduler.schedulers.blocking import BlockingScheduler
-from .repositories.repository import get_pg_connection
+from .repositories.repository import fetch_all_articles_from_db
 from .services.embedding_service import embed_and_store_in_qdrant
 
 logging.basicConfig(level=logging.INFO)
@@ -24,23 +23,7 @@ def run_ingestion_and_embedding():
 
     logger.info("Fetching articles from DB...")
     try:
-        conn = get_pg_connection()
-        with conn.cursor() as cur:
-            cur.execute("SELECT url, title, date_published, date_modified, author, description, text FROM blog_articles")
-            rows = cur.fetchall()
-            articles = [
-                {
-                    "url": row[0],
-                    "title": row[1],
-                    "date_published": row[2],
-                    "date_modified": row[3],
-                    "author": row[4],
-                    "description": row[5],
-                    "text": row[6],
-                }
-                for row in rows
-            ]
-        conn.close()
+        articles = fetch_all_articles_from_db()
         logger.info(f"Fetched {len(articles)} articles from DB.")
     except Exception as e:
         logger.error(f"DB fetch failed: {e}")
@@ -56,7 +39,7 @@ def run_ingestion_and_embedding():
 
 def main():
     scheduler = BlockingScheduler()
-    scheduler.add_job(run_ingestion_and_embedding, 'interval', minutes=1)
+    scheduler.add_job(run_ingestion_and_embedding, 'interval', days=1)
     logger.info("Scheduler started. Will run ingestion and embedding every 24 hours.")
     try:
         scheduler.start()
