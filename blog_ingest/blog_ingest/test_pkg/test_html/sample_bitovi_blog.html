@@ -1,0 +1,811 @@
+
+<html lang="en" class="theme-bitovi-light"><head><script async src="https://www.googletagmanager.com/gtag/js?id=AW-944247078"></script><script data-cid="AW-944247078">
+    const conversionId = document.currentScript.dataset.cid
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', conversionId);
+    </script><meta charset="UTF-8"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.ico"><meta name="generator" content="Astro v4.0.7">
+    <title>Comparing Schema Validation Libraries: AJV, Joi, Yup, and Zod</title>
+    <meta name="description" content="Find the best schema validator for your needs. Our comprehensive comparison of AJV, Joi, Yup, and Zod as schema validators for your Node.js project.
+">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter&amp;family=Poppins:wght@100;300;400;500;600;700;800;900&amp;family=Inter&amp;family=Lato:wght@100;300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"><link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet"><!-- custom element for calendar events. See /files/calendar-events-component/README.md for why --><script type="module" src="https://www.bitovi.com/hubfs/limbo-generated/files/calendar-events-component/calendar-events-component.js"></script><!-- Script to track hubspot analytics. must have id of `hs-script-loader` --><script async defer type="text/javascript" id="hs-script-loader" src="//js.hs-scripts.com/2171535.js"></script><!-- testimonial sliders --><script type="text/javascript" src="https://www.bitovi.com/hubfs/limbo-generated/scripts/testimonial-slider.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script><!-- smooth scrolling by adding the "scroll-me" class --><script>
+  window.addEventListener('DOMContentLoaded', () => {
+    for (const element of document.getElementsByClassName('scroll-me')) {
+      element.addEventListener('click', handleScrollButton)
+    }
+
+    function handleScrollButton(e) {
+      const target = e.currentTarget
+      const href = target?.getAttribute('href')
+      const id = href?.startsWith('#') && href.slice(1)
+      const element = id && document.getElementById(id)
+      if (!element) return
+
+      // prevents element from scrolling halfway into view if the user hit back, then a scroll-me link
+      setTimeout(() => {
+        element.scrollIntoView({ behavior: 'smooth' })
+      });
+
+      return false
+    }
+  })
+  </script><link rel="stylesheet" href="https://www.bitovi.com/hubfs/limbo-generated/_astro/index.rZa0MLrH.css">
+<link rel="stylesheet" href="https://www.bitovi.com/hubfs/limbo-generated/_astro/index.X_3SlDEW.css">
+<style>.hs-blog-post-wrapper.Angular{background-color:#cb3036}.hs-blog-post-wrapper.Project{background-color:#f18200}.hs-blog-post-wrapper.Backend{background-color:#00a0aa}.hs-blog-post-wrapper.React{background-color:#288fed}.hs-blog-post-wrapper.Devops{background-color:#7fb035}.hs-blog-post-wrapper.Design{background-color:#713fdb}
+.blog-post .socials img{display:block;height:42px}.blog-post article h1{font:40px Poppins;font-weight:600;padding-bottom:16px}.blog-post pre,.blog-post code{overflow:auto!important;max-width:100%!important}
+</style><meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <script src="/hs/hsstatic/jquery-libs/static-1.1/jquery/jquery-1.7.1.js"></script>
+<script>hsjQuery = window['jQuery'];</script>
+  <meta property="og:description" content="Find the best schema validator for your needs. Our comprehensive comparison of AJV, Joi, Yup, and Zod as schema validators for your Node.js project.
+">
+  <meta property="og:title" content="Comparing Schema Validation Libraries: AJV, Joi, Yup, and Zod">
+  <meta name="twitter:description" content="Find the best schema validator for your needs. Our comprehensive comparison of AJV, Joi, Yup, and Zod as schema validators for your Node.js project.
+">
+  <meta name="twitter:title" content="Comparing Schema Validation Libraries: AJV, Joi, Yup, and Zod">
+
+  
+
+  
+  <style>
+a.cta_button{-moz-box-sizing:content-box !important;-webkit-box-sizing:content-box !important;box-sizing:content-box !important;vertical-align:middle}.hs-breadcrumb-menu{list-style-type:none;margin:0px 0px 0px 0px;padding:0px 0px 0px 0px}.hs-breadcrumb-menu-item{float:left;padding:10px 0px 10px 10px}.hs-breadcrumb-menu-divider:before{content:'›';padding-left:10px}.hs-featured-image-link{border:0}.hs-featured-image{float:right;margin:0 0 20px 20px;max-width:50%}@media (max-width: 568px){.hs-featured-image{float:none;margin:0;width:100%;max-width:100%}}.hs-screen-reader-text{clip:rect(1px, 1px, 1px, 1px);height:1px;overflow:hidden;position:absolute !important;width:1px}
+</style>
+
+  
+
+  
+<!--  Added by GoogleAnalytics integration -->
+<script>
+var _hsp = window._hsp = window._hsp || [];
+_hsp.push(['addPrivacyConsentListener', function(consent) { if (consent.allowed || (consent.categories && consent.categories.analytics)) {
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+ga('create','UA-2302003-12','auto');
+ga('send','pageview');
+}}]);
+</script>
+
+<!-- /Added by GoogleAnalytics integration -->
+
+<!--  Added by GoogleAnalytics4 integration -->
+<script>
+var _hsp = window._hsp = window._hsp || [];
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+
+var useGoogleConsentModeV2 = true;
+var waitForUpdateMillis = 1000;
+
+
+if (!window._hsGoogleConsentRunOnce) {
+window._hsGoogleConsentRunOnce = true;
+
+gtag('consent', 'default', {
+  'ad_storage': 'denied',
+  'analytics_storage': 'denied',
+  'ad_user_data': 'denied',
+  'ad_personalization': 'denied',
+  'wait_for_update': waitForUpdateMillis
+});
+
+if (useGoogleConsentModeV2) {
+  _hsp.push(['useGoogleConsentModeV2'])
+} else {
+  _hsp.push(['addPrivacyConsentListener', function(consent){
+    var hasAnalyticsConsent = consent && (consent.allowed || (consent.categories && consent.categories.analytics));
+    var hasAdsConsent = consent && (consent.allowed || (consent.categories && consent.categories.advertisement));
+
+    gtag('consent', 'update', {
+      'ad_storage': hasAdsConsent ? 'granted' : 'denied',
+      'analytics_storage': hasAnalyticsConsent ? 'granted' : 'denied',
+      'ad_user_data': hasAdsConsent ? 'granted' : 'denied',
+      'ad_personalization': hasAdsConsent ? 'granted' : 'denied'
+    });
+  }]);
+}
+}
+
+gtag('js', new Date());
+gtag('set', 'developer_id.dZTQ1Zm', true);
+gtag('config', 'G-8J768S097L');
+</script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-8J768S097L"></script>
+
+<!-- /Added by GoogleAnalytics4 integration -->
+
+<!--  Added by GoogleTagManager integration -->
+<script>
+var _hsp = window._hsp = window._hsp || [];
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+
+var useGoogleConsentModeV2 = true;
+var waitForUpdateMillis = 1000;
+
+
+
+var hsLoadGtm = function loadGtm() {
+  if(window._hsGtmLoadOnce) {
+    return;
+  }
+
+  if (useGoogleConsentModeV2) {
+
+    gtag('set','developer_id.dZTQ1Zm',true);
+
+    gtag('consent', 'default', {
+    'ad_storage': 'denied',
+    'analytics_storage': 'denied',
+    'ad_user_data': 'denied',
+    'ad_personalization': 'denied',
+    'wait_for_update': waitForUpdateMillis
+    });
+
+    _hsp.push(['useGoogleConsentModeV2'])
+  }
+
+  (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-P9MQVJS');
+
+  window._hsGtmLoadOnce = true;
+};
+
+_hsp.push(['addPrivacyConsentListener', function(consent){
+if(consent.allowed || (consent.categories && consent.categories.analytics)){
+  hsLoadGtm();
+}
+}]);
+
+</script>
+
+<!-- /Added by GoogleTagManager integration -->
+
+
+<!-- Site Schema -->
+<script type="application/ld+json">
+{
+   "@context": "http://schema.org",
+   "@type": "Organization",
+   "mainEntityOfPage":{
+        "@type":"WebPage",
+        "@id":"https://www.bitovi.com/blog/comparing-schema-validation-libraries-ajv-joi-yup-and-zod",
+        "description": "Find the best schema validator for your needs. Our comprehensive comparison of AJV, Joi, Yup, and Zod as schema validators for your Node.js project.
+"
+   },
+   "url": "http://bitovi.com",
+   "logo": "https://www.bitovi.com/hubfs/bitovi-logo-23-1.svg",
+   "image": "https://www.bitovi.com/hubfs/bitovi-logo-x2.png",
+   "name": "Bitovi Web App Consulting",
+   "alternateName": "Bitovi",
+    "naics": "541511",
+    "description": "Bitovi is a UX, UI design and front-end JavaScript development consulting company",
+   "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "1134 Pine Tree Lane ",
+        "addressLocality": "Libertyville",
+        "addressRegion": "IL",
+        "addressCountry": "United States",
+        "postalCode": "60048"
+   },
+   "areaServed": {
+        "@type": "GeoCircle",
+        "geoMidpoint": {
+             "@type": "GeoCoordinates",
+             "latitude": "41.8781",
+             "longitude": "87.6298"
+        },
+        "geoRadius": "5000 km"
+   },
+   "telephone": "312-620-0386",
+   "email": "contact@bitovi.com",
+   "sameAs": [
+        "https://www.facebook.com/BitoviLLC/",
+        "https://twitter.com/bitovi",
+        "https://www.linkedin.com/company/bitovi"
+   ]
+}
+</script>
+<!-- End Schema -->
+<!-- Facebook Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '1063935717132479');
+fbq('track', 'PageView');
+</script>
+<noscript>&lt;img  height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=1063935717132479&amp;amp;ev=PageView&amp;amp;noscript=1
+https://www.facebook.com/tr?id=1063935717132479&amp;amp;ev=PageView&amp;amp;noscript=1
+"&gt;</noscript>
+<!-- End Facebook Pixel Code -->
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-P9MQVJS');</script>
+<!-- End Google Tag Manager -->
+<meta property="og:image" content="https://www.bitovi.com/hubfs/Comparing%20Schema%20Validation%20Libraries-%20AJV%2c%20Joi%2c%20Yup%2c%20and%20Zod-1.png">
+<meta property="og:image:width" content="1204">
+<meta property="og:image:height" content="600">
+<meta property="og:image:alt" content="Comparing Schema Validation Libraries: AJV, Joi, Yup, and Zod">
+<meta name="twitter:image" content="https://www.bitovi.com/hubfs/Comparing%20Schema%20Validation%20Libraries-%20AJV%2c%20Joi%2c%20Yup%2c%20and%20Zod-1.png">
+<meta name="twitter:image:alt" content="Comparing Schema Validation Libraries: AJV, Joi, Yup, and Zod">
+
+<meta property="og:url" content="https://www.bitovi.com/blog/comparing-schema-validation-libraries-ajv-joi-yup-and-zod">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="canonical" href="https://www.bitovi.com/blog/comparing-schema-validation-libraries-ajv-joi-yup-and-zod">
+<title>Bitovi Blog - UX and UI design, JavaScript and Frontend development</title>
+<!-- Blog Schema  -->
+<script type="application/ld+json">
+{
+   "@context": "http://schema.org",
+   "@type": "BlogPosting",
+   "headline": "Comparing Schema Validation Libraries: AJV, Joi, Yup, and Zod",
+   "image": {
+        "@type": "ImageObject",
+        "url": "https://www.bitovi.com/hubfs/Comparing%20Schema%20Validation%20Libraries-%20AJV%2c%20Joi%2c%20Yup%2c%20and%20Zod-1.png"
+   },
+   "datePublished": "2023-02-03 19:26:35",
+   "dateModified": "August 6, 2024, 2:09:30 PM", 
+   "author": {
+       "@type": "Person",
+       "name": "Roy Ayoola"
+   },
+   "publisher": {
+       "@type": "Organization",
+       "name": "Bitovi",
+       "logo": {
+           "@type": "ImageObject",
+           "url": "https://www.bitovi.com/hubfs/bitovi-logo-23-1.svg"
+       }
+   },
+   "description": "Find the best schema validator for your needs. Our comprehensive comparison of AJV, Joi, Yup, and Zod as schema validators for your Node.js project.
+"
+}
+</script>
+<!-- End Schema --> 
+<!-- Facebook Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '1063935717132479');
+fbq('track', 'PageView');
+</script>
+<noscript>&lt;img  height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=1063935717132479&amp;amp;ev=PageView&amp;amp;noscript=1
+https://www.facebook.com/tr?id=1063935717132479&amp;amp;ev=PageView&amp;amp;noscript=1
+"&gt;</noscript>
+<!-- End Facebook Pixel Code -->
+<meta property="og:type" content="article">
+<link rel="alternate" type="application/rss+xml" href="https://www.bitovi.com/blog/rss.xml">
+<meta name="twitter:domain" content="www.bitovi.com">
+<meta name="twitter:site" content="@bitovi">
+<script src="//platform.linkedin.com/in.js" type="text/javascript">
+  lang: en_US
+</script>
+
+<meta http-equiv="content-language" content="en-us">
+
+
+
+
+
+<meta name="generator" content="HubSpot"></head> <body class="font-sans">
+<!--  Added by GoogleTagManager integration -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-P9MQVJS" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+
+<!-- /Added by GoogleTagManager integration -->
+<main class="blog-post-page"> <!-- bitovi-cmsr-* classes added to work on new pages until rebuilt in new repo --><div class="bitovi-module-wrapper bitovi-cmsr-module-wrapper group bg-[rgba(255, 255, 255, 0.8] shadow-navbar" id="contact-form"> <nav class="bitovi-module bitovi-cmsr-module header-nav-main header-nav grid grid-cols-2 sm:grid-cols-[auto_1fr_auto] gap-6 py-[8px]"> <a href="/" class="justify-self-start row-start-1"> <img src="https://www.bitovi.com/hubfs/limbo-generated/imgs/logos/bitovi-logo-23.svg" alt="Bitovi Home Page" class="min-w-[108px]"> </a> <ul class="sm:grid row-start-2 col-span-2 sm:row-start-1 sm:col-span-1 sm:grid-cols-[repeat(4,_auto)] lg:grid-cols-[repeat(8,_auto)]
+          gap-x-[22px] gap-y-1 justify-self-center items-center text-center"> <li class="inline-block px-[10px] sm:px-0"> <a href="/digital-consulting-services" class="navigation-labels"> Services</a> </li> <li class="inline-block px-[10px] sm:px-0"> <a href="/our-software-consulting-work" class="navigation-labels"> Client Work</a> </li> <li class="inline-block px-[10px] sm:px-0"> <a href="/about" class="navigation-labels"> About Us</a> </li> <li class="inline-block px-[10px] sm:px-0"> <a href="/open-source" class="navigation-labels"> Open Source</a> </li> <li class="inline-block px-[10px] sm:px-0"> <a href="/blog" class="navigation-labels"> Blog</a> </li> <li class="inline-block px-[10px] sm:px-0"> <a href="/academy" class="navigation-labels"> Academy</a> </li> <li class="inline-block px-[10px] sm:px-0"> <a href="/about/jobs" class="navigation-labels"> Jobs</a> </li> </ul> <a href="#contact-form" class="group-target:hidden btn btn-sm btn-brand-1 w-[90px] justify-self-end row-start-1">
+Contact
+</a> <a href="#" class="!hidden group-target:!inline-flex btn btn-sm btn-brand-1 w-[90px] justify-self-end row-start-1">
+Close
+</a> </nav> <section class="bitovi-module-wrapper "><div class="bitovi-module relative grid gap-4 md:gap-10 items-center justify-items-center grid-cols-1 lg:grid-cols-2 
+  bg-[#0B0D17]/[.95] text-white
+  overflow-hidden auto-rows-min
+  max-h-0 group-target:max-h-[1200px] group-target:py-10 group-target:lg:py-12
+  transition-all ease-in-out delay-150 duration-300
+"> <div class="self-start lg:justify-self-end w-[min(100%,400px)] lg:w-auto lg:min-h-[400px]"> <header color="white" class="text-[28px]">Contact us</header> <p class="pt-4"> <a href="tel:3126200386">(312) 620-0386</a>  |  <a href="mailto:%20contact@bitovi.com">contact@bitovi.com</a> </p> </div> <div class="self-start w-[min(100%,400px)] lg:justify-self-start">   <div id="form-embed-wrapper-4c1dd8ca-0276-4b97-b7bb-19528349af57" class="hubspot-form min-h-[432px]">Loading</div><script>
+; (async () => {
+  let analytics
+  try {
+    analytics = JSON.parse(document.currentScript.dataset.analytics)
+  } catch (e) {
+    analytics = {}
+  }
+  const { googleConversionId, googleConversionLabel, linkedInConversionId } = analytics
+
+  const _window = window
+  const dedupeSamePage = ~~(Math.random() * 100000)
+  const id = document.currentScript.previousElementSibling.id
+  document.currentScript.previousElementSibling.id += '__' + dedupeSamePage
+  const formId = id.replace('form-embed-wrapper-', '')
+
+  const scriptId = 'hubspot-forms-global-script'
+
+  // make sure the global hubspot script is in place.
+  const assureHsFormsScript = () => {
+    const prom =
+      _window.HBSPOTGLOBALSCRIPTPROM ||
+      new Promise((resolve) => {
+        const el = document.getElementById(scriptId)
+        if (el) resolve(undefined)
+        else {
+          let script = document.createElement(`script`)
+          script.id = scriptId
+          script.defer = true
+          script.onload = () => resolve(undefined)
+          script.src = `//js.hsforms.net/forms/v2.js`
+          document.head.appendChild(script)
+        }
+      })
+    _window.HBSPOTGLOBALSCRIPTPROM = prom
+    return prom
+  }
+
+  // initialize the hubspot form
+  const appendForm = () => {
+    if (_window.hbspt.forms) {
+      _window.hbspt.forms.create({
+        portalId: 2171535,
+        formId,
+        target: `#${id}__${dedupeSamePage}`,
+        onFormSubmit: ($form) => {
+          // ref: https://developers.hubspot.com/docs/methods/forms/advanced_form_options
+          // var formData = $form.serializeArray()
+          // onSubmit && onSubmit(formData)
+          const clearMe = setInterval(() => {
+            const ty = document.querySelector('.hubspot-form > .submitted-message')
+            if (ty) {
+              clearInterval(clearMe)
+              document.querySelectorAll(`.hubspot-form > form`).forEach((form) => {
+                form.parentNode.replaceChild(ty.cloneNode(true), form)
+              })
+            }
+          }, 175)
+          setTimeout(() => clearInterval(clearMe), 2000)
+          if (googleConversionId && googleConversionLabel && window.gtag) {
+            window.gtag('event', 'conversion', {
+              send_to: `${googleConversionId}/${googleConversionLabel}`,
+            })
+          }
+          if (linkedInConversionId && window.lintrk) {
+            window.lintrk('track', { conversion_id: linkedInConversionId })
+          }
+        },
+      })
+    }
+  }
+
+  await assureHsFormsScript()
+  appendForm()
+})()
+</script>   </div> <img src="https://www.bitovi.com/hubfs/limbo-generated/imgs/vectors/bitdots-2b.svg" aria-hidden="true" alt="" class="hidden md:block absolute scale-75 rotate-90 -mt-20 md:-left-60 xl:-left-[120px]"> <img src="https://www.bitovi.com/hubfs/limbo-generated/imgs/vectors/bitdots-2b.svg" aria-hidden="true" alt="" class="hidden md:block absolute scale-75 rotate-180 -mt-8 md:-right-40 lg:-right-60 xl:-right-[120px]"> </div></section> </div>  <!--    separate topic_list (Hubspot blog "tags" that are used for page "category" and relevant "tags") 
+ - (single) blogCategory that is shown at top of page & determines color. Marketing will only ever allow one category.
+ - (multiple) tags that are shown at bottom --> 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+
+<section class="blog-post"> <div class="blog-post-header-image-wrapper bg-center bg-cover undefined" style="background-image: url(https://www.bitovi.com/hubfs/Comparing%20Schema%20Validation%20Libraries-%20AJV%2c%20Joi%2c%20Yup%2c%20and%20Zod-1.png);"> <div class="bg-category-backend/75 "> <div style="background: linear-gradient(to top, hsla(230deg, 35%, 7%, 85%), hsla(215deg, 35%, 7%, 0));" class=""> <div class="hs-blog-post-wrapper container mx-auto bg-blend-multiply bg-center text-white flex ">  <div class="w-full p-10 sm:py-20 sm:px-12 md:py-[92px] md:px-[60px] lg:py-36 lg:px-20 xl:p-52 2xl:p-[280px]"> <div> <p>  <a href="https://www.bitovi.com/blog/topic/backend" class="text-category-backend bg-white rounded-sm capitalized uppercase mr-1 px-2 py-1 transition-all duration-200 hover:-rotate-1 hover:scale-110 undefined"> Backend </a>  |  <time> February 3, 2023 </time> </p> </div> <h1 class="text-4xl md:text-5xl lg:text-6xl !text-white py-4"> <span id="hs_cos_wrapper_name" class="hs_cos_wrapper hs_cos_wrapper_meta_field hs_cos_wrapper_type_text" style="" data-hs-cos-general-type="meta_field" data-hs-cos-type="text">Comparing Schema Validation Libraries: AJV, Joi, Yup, and Zod</span> </h1> <p class="subtitle-1 !font-normal pb-5"> Find the best schema validator for your needs. Our comprehensive comparison of AJV, Joi, Yup, and Zod as schema validators for your Node.js project.
+</p> <div class="h-14 flex items-center"> 
+
+
+      <img class="author-img h-12 w-12 md:h-14 md:w-14 object-cover rounded-full mr-4" src="https://www.bitovi.com/hubfs/548-5480727_profile-pic-for-slack-clipart.png" alt="Roy Ayoola"> <div> <p class="text-[16px] font-bold"> Roy Ayoola </p> <!-- <p class="">
+  <HublString hubl="rayoola@bitovi.com" dev={author.email} />
+</p> --> <p class="author-title body-2 !text-white"> 
+
+</p> </div> <div class="flex flex-row flex-wrap ml-auto items-center justify-center gap-1 leading-none"> <div class="hidden sm:block">Share:</div> <a href="https://twitter.com/intent/tweet?text=" title="Share on Twitter" target="_blank" aria-label="Share on Twitter" onclick="(event) => {
+  if (share) {
+    event.preventDefault();
+    window.open(
+      &quot;https://twitter.com/intent/tweet?text=&quot; + encodeURIComponent(document.URL) + &quot;&amp;t=&quot; + encodeURIComponent(document.URL),
+      &quot;_blank&quot;
+    );
+  }
+}" class="flex items-center justify-center h-10 w-10 bg-white/10 rounded-full"> <img src="https://www.bitovi.com/hubfs/limbo-generated/_astro/twitter-white.os3xLc3C_Z2nW4or.svg" alt="Twitter" class="h-5" loading="lazy" width="20" height="18" decoding="async"> </a> <a title="Share on Reddit" target="_blank" aria-label="Share on Reddit" href="http://reddit.com/submit?url=" onclick="
+window.open('http://reddit.com/submit?url=' + encodeURIComponent(document.URL) + '&amp;title=Check%20Out%20This%20Blog%20From%20Bitovi'); return false
+"> <img src="https://www.bitovi.com/hubfs/limbo-generated/imgs/icons/reddit.png" alt="Reddit"> </a> </div> </div> <br> </div>  </div> </div> </div> </div> <article class="blog-article p-10 md:p-20"> <div class="max-w-[600px] 2xl:max-w-[800px] mx-auto"> <div class="prose"> <div class="in-this-series"> <span id="hs_cos_wrapper_module_14739654528111182" class="hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_custom_widget" style="" data-hs-cos-general-type="widget" data-hs-cos-type="custom_widget"></span> </div> <span id="hs_cos_wrapper_post_body" class="hs_cos_wrapper hs_cos_wrapper_meta_field hs_cos_wrapper_type_rich_text" style="" data-hs-cos-general-type="meta_field" data-hs-cos-type="rich_text"><p>Overwhelmed by the options for schema validation? Comparing tools can be confusing. With so many options, how do you know which one is best for your needs? In this post, we’ll compare AJV, Joi, Yup, and Zod in their functionality and usability.</p>
+<!--more-->
+<div class="hs-cta-embed hs-cta-simple-placeholder hs-cta-embed-175013859865" style="max-width: 100%; max-height: 100%; width: 700px; height: 187.8203125px;" data-hubspot-wrapper-cta-id="175013859865"><a href="https://cta-service-cms2.hubspot.com/web-interactives/public/v1/track/redirect?encryptedPayload=AVxigLK5qfktJ3FebBkieGW2B%2FRz5jSF%2BJ5BvpJOQLy70hj%2FQuExhhbnD3gWL7bf%2FeggZXEknTL4Svf7C0i3bGMQECTgWPNsC%2BxalGpAYGWe7XQKlcnjNup7Jdn%2Bw90sxxj4UMe3B1ghPDtafUpZDVSKHdin2RjF3DMXhubOFZmsgpXwvtdtyZ09QEjrpR%2F2iWGMKqHr6oAipz5ea9lQdjHm27JT&amp;webInteractiveContentId=175013859865&amp;portalId=2171535" target="_blank" rel="noopener" crossorigin="anonymous"> <img alt="Vector" loading="lazy" src="https://no-cache.hubspot.com/cta/default/2171535/interactive-175013859865.png" style="height: 100%; width: 100%; object-fit: fill;" onerror="this.style.display='none'"> </a></div>
+<h2 id="SchemaValidationComparison:AJVvsJoivsYupvsZod-WhatareSchemas?">What are Schemas?</h2>
+<p>A schema is a structure that defines the shape of your data. It shows how a model exists and how it relates to other models around it. A database schema is the skeleton structure that represents the logical view of the entire database. The schema doesn’t hold data itself, but its structure is imposed on the store data.</p>
+<p>Ensuring the data follows the schema format is important, so validating your data against a schema is also important. There are libraries in Node.js that help make the process easier. This post will help you choose the right schema validation library for your project.</p>
+<h2 id="SchemaValidationComparison:AJVvsJoivsYupvsZod-SchemaValidatorOption:AJV">Schema Validator Option: AJV</h2>
+<p>AJV is one of the more popular validators available. It has a very rich API that is currently being used by a large number of applications in all environments. What makes AJV different from the rest and unique is AJV is a JSON Schema validator.</p>
+<p>Let’s take a quick look at the syntax. Validating data involves writing out the expected schema, compiling it with AJV, and then validating it against any data.</p>
+<p>The major issue with AJV is writing custom error messages, it requires a longer process than other schema validation libraries. Custom messages are very important. There is a workaround using libraries like <strong>AJV-errors</strong>, but it is more complicated than other libraries.</p>
+<ul>
+<li>
+<div>AJV uses JSON Schema to validate its data, which can be done across various languages.</div>
+</li>
+<li>
+<div>Large community around it with ~12k stars on Github and 85M weekly npm downloads.</div>
+</li>
+<li>
+<div>AJV currently is the fastest json schema validator library according to json-schema-benchmarks.</div>
+</li>
+</ul>
+<p>AJV is easy to use. All you have to do is write your schema, compile it, and validate if it works</p>
+<pre class="language-javascript"><code>const schema = {
+type: "object",
+properties: {
+  name: { type: "string" },
+  email: { type: "string"},
+  age: { type: "integer" },
+  account: {
+    type: "object",
+    properties: {
+        bank: {type: "string"},
+        account: {type: "integer"}
+    },
+    required: ["account","bank"]
+  },
+},
+required: ["name", "email", "account"],
+additionalProperties: false,
+}</code></pre>
+<p>The schema above has been written to represent the structure of the data. It contains name, email, age, and account properties fully represented in the schema and the expected property type. The additional properties field ensures the data fails when fields not present in the schema are present in the data. The required field is also necessary. It is an array of all fields that should be required in the object.</p>
+<p>You may have noticed in the last snippet the other big complaint people have with JSON Schema: it is very verbose. Thankfully there is a tool that lets us write the same schema with a cleaner syntax: <a href="https://github.com/sinclairzx81/typebox" class="external-link" rel="nofollow">TypeBox</a>. Here’s the above schema rewritten using TypeBox:</p>
+<pre class="language-javascript"><code>import { Static, Type } from '@sinclair/typebox'
+
+const schema = Type.Object({
+name: Type.String(),
+email: Type.String(),
+age: Type.Optional(Type.Number()),
+account: Type.Object({
+  bank: Type.String(),
+  account: Type.Number()
+})
+}, { additionalProperties: false })
+
+type Schema = Static&lt;typeof schema&gt;</code></pre>
+<p>Using TypeBox, the same schema requires half as many lines of code, making it as friendly to write as other schema validation options. It also generates static types, making it an excellent choice for TypeScript projects. TypeBox is becoming a popular option for JSON Schema usage. For example, it was recently <a href="https://feathersjs.com/api/schema/typebox.html" class="external-link" rel="nofollow">integrated</a> into the latest release of <a href="https://feathersjs.com/" class="external-link" rel="nofollow">FeathersJS</a>.</p>
+<p>The resulting schema output is the same whether you use the more verbose JSON Schema syntax or choose to use TypeBox. Now let’s look at how to use the schema with AJV.</p>
+<h3 id="SchemaValidationComparison:AJVvsJoivsYupvsZod-HowtoValidateaSchemainAJV">How to Validate a Schema in AJV</h3>
+<p>Validating the schema in AJV is as simple as compiling the schema and validating it against any data that should match the schema. You can see the process in the code sample below:</p>
+<pre class="language-javascript"><code>const validate = AJV.compile(schema);
+const isValid = validate(data);
+console.log(validate.errors) // NULL IF THERE ARE NO ERRORS</code></pre>
+<h2 id="SchemaValidationComparison:AJVvsJoivsYupvsZod-SchemaValidatorOption:Joi">Schema Validator Option: Joi</h2>
+<p>Joi is a schema validation tool that runs in your browser and allows you to check that your data conforms to any schema format (including those defined with JSON-LD). Joi also provides tools for creating, comparing, and sharing schemas. The validator supports schema validation, definitions, introspections, and minimization.</p>
+<p>As a bonus: Joi also has rich API and is in use by a large number of applications.</p>
+<ul>
+<li>
+<div>Largest community and support around it with ~19k stars on Github.</div>
+</li>
+<li>
+<div>The bundle size is around 149kb minified.</div>
+</li>
+<li>
+<div>It is built more for the server side and is recommended when working server side.</div>
+</li>
+<li>
+<div>Joi has a very large API which means it’s well-documented, shortening the learning curve.</div>
+</li>
+</ul>
+<h3 id="SchemaValidationComparison:AJVvsJoivsYupvsZod-HowtoValidateaSchemainJoi">How to Validate a Schema in Joi</h3>
+<p>The code below describes writing a schema in Joi. the syntax is very easy to learn, and a large API to accommodate most validation use cases is present in Joi. Including a custom error message is also very easy as you can see from below.</p>
+<pre class="language-javascript"><code>const schema = Joi.object({
+name: Joi.string().required('Name is required'),
+email: Joi.string().email('An email should be sent').required(),
+age: Joi.number().optional(),
+account: Joi.object({
+  bank: Joi.string().required(),
+  account: Joi.string().required(),
+})
+});</code></pre>
+<p>You can validate your data against the schema using the code below</p>
+<pre class="language-javascript"><code>const { error, value } = schema.validate(data);
+if(error) {
+console.log(error.message)
+}
+console.log(value);</code></pre>
+<h2 id="SchemaValidationComparison:AJVvsJoivsYupvsZod-SchemaValidatorOption:Yup">Schema Validator Option: Yup</h2>
+<p>Yup is a schema validator heavily inspired by Joi. The schema looks very similar to Joi and will be fairly simple to pick up if you already know Joi. Yup is built with client-side validations as its primary use case.</p>
+<p>Yup is different from other mentioned validators because it separates the parsing of data and validating of this data into different steps. You can cast your data into a structure that you want it to be.</p>
+<ul>
+<li>
+<div>Schema is similar to Joi, and it also has similar methods.</div>
+</li>
+<li>
+<div>It is primarily used on the client side and supports client-side Validations.</div>
+</li>
+<li>
+<div>Bundle size of ~60kb minified. This is lower than AJV and Joi but larger than Zod.</div>
+</li>
+<li>
+<div>Yup supports static type inference, but it isn’t necessarily aligned with TypeScript.</div>
+</li>
+</ul>
+<pre class="language-javascript"><code>const yup = require('yup');
+const { data } = require('./data');
+
+const schema = yup.object({
+  name: yup.string().required(),
+  email: yup.string().email().required(),
+  age: yup.number().positive().optional(),
+  account: yup.object({
+      bank: yup.string().required(),
+      account: yup.string().required(),
+  })
+});</code></pre>
+<p>The above schema looks very similar to Joi. An object is being validated, the name field ensures it is a string, and it is required. Yup also supports extra validations like the validation for email, as seen in the email field. Ensure to also check their documentation to see what is supported.</p>
+<p>Incoming data is validated against the schema above. In Yup, you can either validate your data or cast it into the required feature. It returns a promise when you cast or validate your data, ensuring to handle the response with this in mind.</p>
+<h3 id="SchemaValidationComparison:AJVvsJoivsYupvsZod-HowtoValidateaSchemainYup">How to Validate a Schema in Yup</h3>
+<p>To validate a schema in Yup, you first cast the data:</p>
+<pre class="language-javascript"><code>schema.cast(data).then(data =&gt; console.log(data))</code></pre>
+<p>Then, assuming the data is in the expected format, Yup will validate the data:</p>
+<pre class="language-javascript"><code>schema.validate(data)
+.then(value =&gt; console.log(value))
+.catch(error =&gt; console.log(error))</code></pre>
+<h2 id="SchemaValidationComparison:AJVvsJoivsYupvsZod-SchemaValidatorOption:Zod">Schema Validator Option: Zod</h2>
+<p>Zod is a schema validation tool that allows you to check your JSON Schema against actual data. It's fast, it's easy to use, and it has no dependencies. Zod is based on the JSON Schema Validator (Joi) but with a different architecture. Zod can be used as a standalone package or with the Joi library.</p>
+<ul>
+<li>
+<div>Zod supports static type inference, it works well with TypeScript.</div>
+</li>
+<li>
+<div>Bundle size is around ~45kb.</div>
+</li>
+</ul>
+<h3 id="SchemaValidationComparison:AJVvsJoivsYupvsZod-HowtoValidateaSchemainZod">How to Validate a Schema in Zod</h3>
+<p>Validating in Zod involves creating a schema to parse the data against the schema. The process is similar to the rest, except you are not validating but parsing. This means it throws an error if it fails.</p>
+<pre class="language-javascript"><code>const zod = require("zod")
+const { data } = require("./data")
+
+const schema = zod.object({
+  name: zod.string(),
+  email: zod.string().email(),
+  age: zod.number().positive().optional(),
+  account: zod.object({
+      bank: zod.string(),
+      account: zod.string(),
+  })
+}).strict();
+try{
+schema.parse(data);
+}
+catch (e){
+console.log(e);
+}</code></pre>
+<p>Ensure to try-catch when you parse to handle the error as needed.</p>
+<pre class="language-javascript"><code>import * as zod from "zod";
+
+const schema = zod.string();
+type B = zod.infer&lt;typeof schema&gt;;
+const y: B = 738.2; //IT THROWS AN ERROR</code></pre>
+<h2 id="SchemaValidationComparison:AJVvsJoivsYupvsZod-Conclusion">Conclusion</h2>
+<p>All schema validation libraries will work well enough to be used for your project. When looking on the server side, AJV and Joi are considered top choices in this case, while Yup and Zod are considered more on the client side.</p>
+<p>Joi is my personal choice when strictly working with JavaScript on the server side because it has support for a lot more API, and it’s quicker to understand the schema. Joi also has great documentation to back up its largely available API.</p>
+<p>When working with multiple languages or a microservice architecture using different stacks, AJV is a better choice mainly because you can share your schema across services, as the JSON-Schema can also be compiled by other languages. For TypeScript projects, TypeBox makes the syntax much cleaner.</p>
+<p>On the client side, if you are working with TypeScript, Zod is a really good choice based on compatibility and may be the better choice for your project. However, if you have worked with Joi, the similarity of Yup with Joi makes the transition easier. They are both capable of the same things, and it’s totally up to you to figure out</p>
+<h3 id="SchemaValidationComparison:AJVvsJoivsYupvsZod-Readytoenterthedebate?">Ready to enter the debate?</h3>
+<p>Join the <a href="https://discord.gg/J7ejFsZnJ4" class="external-link" rel="nofollow">Bitovi Discord server</a>! Our community is available to help work through whatever you’re facing.</p>
+<p><!--HubSpot Call-to-Action Code --><span class="hs-cta-wrapper" id="hs-cta-wrapper-224f5741-883f-452d-b142-dd575d07685e"><span class="hs-cta-node hs-cta-224f5741-883f-452d-b142-dd575d07685e" id="hs-cta-224f5741-883f-452d-b142-dd575d07685e"><!--[if lte IE 8]><div id="hs-cta-ie-element"></div><![endif]--><a href="https://cta-redirect.hubspot.com/cta/redirect/2171535/224f5741-883f-452d-b142-dd575d07685e" target="_blank" rel="noopener"><img class="hs-cta-img" id="hs-cta-img-224f5741-883f-452d-b142-dd575d07685e" style="border-width:0px;" src="https://no-cache.hubspot.com/cta/default/2171535/224f5741-883f-452d-b142-dd575d07685e.png" alt="Join our Discord"></a></span><script charset="utf-8" src="/hs/cta/cta/current.js"></script><script type="text/javascript"> hbspt.cta._relativeUrls=true;hbspt.cta.load(2171535, '224f5741-883f-452d-b142-dd575d07685e', {"useNewLoader":"true","region":"na1"}); </script></span><!-- end HubSpot Call-to-Action Code --></p></span> </div> <div class="mt-8">  <div class="flex flex-row items-center flex-wrap not-prose gap-2"> <a href="https://www.bitovi.com/blog/topic/node.js" class="undefined hover:bg-gray-100 rounded-lg flex flex-row items-center px-2 py-1 gap-0.5 inline-block" rel="tag">
+  <img aria-role="hidden" src="https://www.bitovi.com/hubfs/limbo/icons/tag.svg" alt="Tag for node.js">
+  node.js
+</a> </div>  </div> </div> <div class="flex flex-col sm:flex-row items-center sm:items-start justify-center mt-28 space-y-6 sm:space-y-0 sm:space-x-12 md:space-x-5"><div class="flex-initial flex flex-col basis-1/2 flex-wrap items-center justify-start sm:items-end md:items-start md:flex-row-reverse">
+          
+          <p class="uppercase md:w-full mb-5 text-md text-gray-500 font-extrabold text-right">Previous Post</p>
+          <div class="flex flex-col lg:flex-row-reverse items-center lg:items-start sm:items-end lg:gap-4">
+            <img src="https://www.bitovi.com/hs-fs/hubfs/Pragmatic%20Design-%20The%20Secret%20to%20Scaling%20Design%20Teams.png?height=117&amp;name=Pragmatic%20Design-%20The%20Secret%20to%20Scaling%20Design%20Teams.png" alt="Pragmatic Design: The Secret to Scaling Design Teams" class="max-h-[116px] max-w-[152px] rounded-lg flex-initial">
+            <a href="/blog/pragmatic-design-secret-to-scaling-design-practices" class="max-w-[236px] flex-1 mt-8 lg:mt-0 text-xl text-brand-2-100 font-bold text-center sm:text-right">
+              <span>
+                Pragmatic Design: The Secret to Scaling Design Practices
+              </span>
+            </a>
+          </div>
+          
+        </div><div class="flex-none invisible sm:visible border-l-2 h-0 sm:h-60 lg:h-[140px]">&nbsp;</div><div class="flex-initial flex flex-col basis-1/2 flex-wrap items-center justify-start sm:items-start md:flex-row">
+          
+          <p class="uppercase md:w-full mb-5 text-md text-gray-500 font-extrabold">Next Post</p>
+          <div class="flex flex-col lg:flex-row items-center sm:items-start lg:gap-4">
+            <img src="https://www.bitovi.com/hs-fs/hubfs/Should%20Your%20Team%20Be%20Using%20Micro%20Frontends%20and%20Module%20Federation%3F.png?height=117&amp;name=Should%20Your%20Team%20Be%20Using%20Micro%20Frontends%20and%20Module%20Federation%3F.png" alt="Should Your Team Be Using Micro Frontends and Module Federation?" class="max-h-[116px] max-w-[152px] rounded-lg flex-initial">
+            <a href="/blog/should-your-team-be-using-micro-frontends-and-module-federation" class="max-w-[236px] flex-1 mt-8 lg:mt-0 text-xl text-brand-2-100 font-bold text-center sm:text-left">
+              <span>
+                Should Your Team Be Using Micro Frontends and Module Federation?
+              </span>
+            </a>
+          </div>
+          
+        </div></div> </article> </section> <!-- bitovi-cmsr-* classes added to work on new pages until rebuilt in new repo --><footer class="bitovi-module-wrapper bitovi-cmsr-module-wrapper bg-brand-2-600"> <div class="footer-big-5-module bitovi-module bitovi-cmsr-module pt-4 text-[#D9DBE1] pb-6 md:pt-14"> <div class="flex flex-col sm:flex-row items-center sm:items-start sm:justify-between gap-6 mb-[76px]">  <section class="flex flex-col gap-6 pt-6 pr-6 w-3/4 md:w-auto"> <h2 class="sr-only">Contact Bitovi</h2> <a href="/"> <img src="https://www.bitovi.com/hubfs/limbo-generated/_astro/bitovi-logo-23-white.3yIZT4FH_1tclvJ.svg" alt="Bitovi home" class="w-[95px]" loading="lazy" width="109" height="34" decoding="async"> </a> <a href="tel:3126200386" class="flex items-center gap-3 w-max"> <img src="https://www.bitovi.com/hubfs/limbo-generated/_astro/mobile.ygAETHaF_Z1UhMWS.svg" alt="" class="inline mr-2" loading="lazy" width="14" height="20" decoding="async"> <div>(312) 620-0386</div> </a> <a href="mailto:contact@bitovi.com" class="flex items-center gap-3"> <img src="https://www.bitovi.com/hubfs/limbo-generated/_astro/message.U-_f_TfX_U35yS.svg" alt="" class="inline mr-2" loading="lazy" width="20" height="18" decoding="async">
+contact@bitovi.com
+</a> <ul class="flex gap-6 list-none"> <li> <a href="https://twitter.com/bitovi" title="View Bitovi's Twitter" target="_self" aria-label="View Bitovi's Twitter" onclick="(event) => {
+  if (share) {
+    event.preventDefault();
+    window.open(
+      &quot;https://twitter.com/intent/tweet?text=&quot; + encodeURIComponent(document.URL) + &quot;&amp;t=&quot; + encodeURIComponent(document.URL),
+      &quot;_blank&quot;
+    );
+  }
+}" class="flex items-center justify-center h-10 w-10 bg-white/10 rounded-full"> <img src="https://www.bitovi.com/hubfs/limbo-generated/_astro/twitter-white.os3xLc3C_Z2nW4or.svg" alt="Twitter" class="h-5" loading="lazy" width="20" height="18" decoding="async"> </a> </li> <li> <a href="https://github.com/bitovi" class="flex items-center justify-center h-10 w-10 bg-white/10 rounded-full"> <img src="https://www.bitovi.com/hubfs/limbo-generated/_astro/github-white.bFTYrNMm_UUv0v.svg" alt="GitHub" class="h-8" loading="lazy" width="24" height="24" decoding="async"> </a> </li> <li> <a href="https://www.linkedin.com/company/bitovi/" target="_self" aria-label="Bitovi on LinkedIn" class="flex items-center justify-center h-10 w-10 bg-white/10 rounded-full"> <img src="https://www.bitovi.com/hubfs/limbo-generated/_astro/linked-in-white.yLvNyruT_1bOTe.svg" alt="LinkedIn" class="h-5" loading="lazy" width="14" height="13" decoding="async"> </a> </li> <li> <a href="https://discord.com/invite/Za8CFzvmz3" class="flex items-center justify-center h-10 w-10 bg-white/10 rounded-full"> <img src="https://www.bitovi.com/hubfs/limbo-generated/_astro/discord-white.0oeXA4kq_JCPjW.svg" alt="Discord" class="h-7" loading="lazy" width="24" height="24" decoding="async"> </a> </li> </ul> </section> <div class="w-3/4 sm:w-full flex flex-col sm:flex-row sm:flex-wrap"> <div class="flex flex-col sm:flex-row w-full md:w-1/2 sm:justify-around gap-6">  <section class="w-full sm:w-1/2 lg:w-full pt-6"> <h2 class="heading-footer mb-4 uppercase text-[#F9F9FD]"> <a href="digital-consulting-services">Services</a> </h2> <ul> <li class="mb-1"> <a href="/services/agile-project-management-consulting">Project management consulting</a> </li> <li class="mb-1"> <a href="/services/product-design-consulting">Product design consulting</a> </li> <li class="mb-1"> <a href="/services/frontend-development-consulting"> Frontend development consulting </a> </li> <li class="mb-1"> <a href="/services/backend-engineering-consulting"> Backend engineering consulting</a> </li> <li class="mb-1"> <a href="/services/devops-consulting">DevOps engineering consulting</a> </li> <li class="mb-1"> <a href="/quality-engineering-consulting">Quality engineering consulting</a> </li> </ul> </section>  <section class="w-full sm:w-1/2 pt-6"> <h2 class="heading-footer mb-4 uppercase text-[#F9F9FD]"> <a href="/web-application-consulting-work">Our Work</a> </h2> <ul> <li class="mb-1"> <a href="/bitovi-yum-case-study">Yum</a> </li> <li class="mb-1"> <a href="/web-application-consulting-work/levis-ecommerce-responsive-redesign">Levi's</a> </li> <li class="mb-1"> <a href="/web-application-consulting-work/haulhound-trucking-web-app">HaulHound</a> </li> <li class="mb-1"> <a href="/ux-design-consulting/ux-case-studies/bafs-ppp">BAFS</a> </li> </ul> </section> </div>  <div class="flex flex-col sm:flex-row sm:justify-around w-full md:w-1/2 gap-6"> <section class="w-full sm:w-1/2 pt-6"> <h2 class="heading-footer mb-4 uppercase text-[#F9F9FD]"> <a href="/community">Community</a> </h2> <ul> <li class="mb-1"> <a href="/community">Events</a> </li> <li class="mb-1"> <a href="/academy/">Academy</a> </li> <li class="mb-1"> <a href="/blog">Blog</a> </li> <li class="mb-1"> <a href="/open-source-javascript-frameworks">Open source tools</a> </li> </ul> </section>  <section class="w-full sm:w-1/2 pt-6"> <h2 class="heading-footer mb-4 uppercase text-[#F9F9FD]"> <a href="/about">About</a> </h2> <ul> <li class="mb-1 uppercase heading-footer"> <a href="/about/jobs">Careers</a> </li> </ul> </section> </div> </div> </div>  <section class="flex flex-wrap gap-4 justify-between"> <h2 class="sr-only">Legal</h2> <span> © 2024 Bitovi. All rights reserved</span> <ul class="flex gap-2 flex-wrap list-none">  </ul> </section> </div> </footer> </main>  
+<!-- HubSpot performance collection script -->
+<script defer src="/hs/hsstatic/content-cwv-embed/static-1.1293/embed.js"></script>
+
+<!-- Start of HubSpot Analytics Code -->
+<script type="text/javascript">
+var _hsq = _hsq || [];
+_hsq.push(["setContentType", "blog-post"]);
+_hsq.push(["setCanonicalUrl", "https:\/\/www.bitovi.com\/blog\/comparing-schema-validation-libraries-ajv-joi-yup-and-zod"]);
+_hsq.push(["setPageId", "101088025966"]);
+_hsq.push(["setContentMetadata", {
+  "contentPageId": 101088025966,
+  "legacyPageId": "101088025966",
+  "contentFolderId": null,
+  "contentGroupId": 4185612125,
+  "abTestId": null,
+  "languageVariantId": 101088025966,
+  "languageCode": "en-us",
+  
+  
+}]);
+</script>
+
+<script type="text/javascript" id="hs-script-loader" async defer src="/hs/scriptloader/2171535.js"></script>
+<!-- End of HubSpot Analytics Code -->
+
+
+<script type="text/javascript">
+var hsVars = {
+  render_id: "2c39674a-2b88-4868-a17d-9f37556fdafa",
+  ticks: 1744863650412,
+  page_id: 101088025966,
+  
+  content_group_id: 4185612125,
+  portal_id: 2171535,
+  app_hs_base_url: "https://app.hubspot.com",
+  cp_hs_base_url: "https://cp.hubspot.com",
+  language: "en-us",
+  analytics_page_type: "blog-post",
+  scp_content_type: "",
+  
+  analytics_page_id: "101088025966",
+  category_id: 3,
+  folder_id: 0,
+  is_hubspot_user: false
+}
+</script>
+
+
+<script defer src="/hs/hsstatic/HubspotToolsMenu/static-1.432/js/index.js"></script>
+
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-P9MQVJS" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+var js, fjs = d.getElementsByTagName(s)[0];
+if (d.getElementById(id)) return;
+js = d.createElement(s); js.id = id;
+js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v3.0";
+fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script> <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="https://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+
+
+<style lang="postcss">
+.blog-post h1 {
+font-family: Poppins, Lato, sans-serif;
+font-weight: 600;
+}
+.blog-post h2 {
+font-family: Poppins, Lato, sans-serif;
+font-weight: 600;
+line-height: 48px;
+font-size: 32px;
+@media screen and (min-width: unset){
+  font-size: 40px;
+}
+}
+.blog-post h3 {
+font-family: Poppins, Lato, sans-serif;
+font-weight: 600;
+font-size: 28px;
+line-height: 36px;
+}
+.blog-post h3,
+.blog-post h4,
+.blog-post h5 {
+font-family: Poppins, Lato, sans-serif;
+font-weight: 600;
+}
+.blog-post .prose {
+max-width: unset; /* Tailwind defaults .prose to 65ch which prevents blog text from filling the content width. */
+}
+.blog-post .prose p:not(:last-child) {
+margin-bottom: 24px;
+}
+.blog-post .prose p:not(:first-child) {
+margin-top: 24px;
+}
+.blog-post .prose p,
+.blog-post .prose li {
+font-family: Lato, sans-serif;
+font-weight: 400;
+font-size: 18px;
+line-height: 26px;
+}
+
+@media screen and (max-width: 768px) {
+.blog-post .prose img {
+
+  margin-bottom: 24px !important;
+}
+}
+@media screen and (min-width: 768px) {
+.blog-post .prose img {
+
+  margin-right: 36px;
+  margin-left: 24px;
+}
+}
+
+.prose strong {
+color: inherit !important;
+}
+</style></body></html>

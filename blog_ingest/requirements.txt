@@ -9,6 +9,6 @@ pytest
 httpx
 qdrant-client
 apscheduler
-fastembed
 pydantic
 openai
+tiktoken

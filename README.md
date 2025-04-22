@@ -60,6 +60,12 @@ For convenience, a wrapper script has been added to make this less clunky. The `
 ./up Postgres
 ```
 
+To start the full Bitovi stack (n8n, Postgres, Qdrant, Adminer) in one command, use:
+
+```bash
+./up bitovi
+```
+
 ## Adminer
 Adminer is a database management tool that can be used to manage the databases used by n8n. To access Adminer, navigate to the following URL: [http://localhost:8080/](http://localhost:8080/)
 
@@ -74,15 +80,23 @@ Password: password
 Database: n8n
 ```
 
-## Blog Scraper & Ingestion Service (Python/FastAPI)
+## Blog Scraper, Ingestion & Vector Search Architecture
 
-A new microservice will be added to handle scraping Bitovi blog articles, extracting clean text and metadata, and storing them in Postgres for downstream RAG workflows. This service will:
-- Parse Bitovi's sitemap to extract all /blog/ URLs
-- Fetch and clean each blog post (remove HTML)
-- Collect metadata (title, date, tags, URL)
-- Store results in Postgres
-- Implement polite scraping (200ms delay, error handling, retries)
-- Allow scheduling via environment variable
+![n8n Workflow](docs/workflow.png)
+
+This project includes a modern microservice architecture for automated blog ingestion and vector search, orchestrated by n8n:
+
+- **n8n Workflow**: Triggers the ingestion process on a schedule using a webhook call to the FastAPI service's `/ingest` endpoint.
+- **FastAPI Microservice**: Handles scraping Bitovi blog articles, extracting clean text and metadata, and storing them in Postgres.
+- **Vector Database (Qdrant)**: After ingestion, the service generates embeddings for each article and inserts them into Qdrant for semantic search and RAG workflows.
+- **Postgres**: Stores structured article metadata and content for analytics and backup.
+
+**Key Features:**
+- Automated, scheduled ingestion via n8n
+- Clean text extraction, metadata parsing, and polite scraping
+- Embedding generation and vector storage in Qdrant
+- FastAPI `/ingest` endpoint for triggering the pipeline
+- Scalable, production-ready Docker Compose setup
 
 **Setup instructions will be added here once the service is implemented.**
 
