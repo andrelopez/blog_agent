@@ -1,11 +1,14 @@
 import openai
+import logging
 from qdrant_client import QdrantClient
 from qdrant_client.models import PointStruct, VectorParams, Distance
+from ..repositories.repository import fetch_all_articles_from_db
 import os
 import uuid
-import re
-from datetime import datetime
 import tiktoken
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 QDRANT_HOST = os.getenv("QDRANT_HOST", "qdrant")
 QDRANT_PORT = int(os.getenv("QDRANT_PORT", 6333))
@@ -48,6 +51,22 @@ def get_openai_embeddings(texts):
     )
     return [d.embedding for d in response.data]
 
+def run_ingestion_and_embedding():
+    logger.info("Fetching articles from DB...")
+    try:
+        articles = fetch_all_articles_from_db()
+        logger.info(f"Fetched {len(articles)} articles from DB.")
+    except Exception as e:
+        logger.error(f"DB fetch failed: {e}")
+        return
+
+    logger.info("Running Embedding service...")
+    try:
+        embed_and_store_in_qdrant(articles)
+        logger.info("Embedding and storage in Qdrant successful.")
+    except Exception as e:
+        logger.error(f"Embedding service failed: {e}")
+
 def embed_and_store_in_qdrant(articles):
     # Get embedding size from a sample embedding
     sample_article = articles[0]
@@ -85,100 +104,4 @@ def embed_and_store_in_qdrant(articles):
                     }
                 }
             ))
-    client.upsert(collection_name=QDRANT_COLLECTION, points=points)
-
-def detect_date_sort_order(question):
-    """
-    Returns 'desc' for latest/newest/most recent, 'asc' for oldest/first, or None for normal semantic search.
-    """
-    if re.search(r'latest|newest|most recent', question, re.IGNORECASE):
-        return 'desc'
-    if re.search(r'oldest|first', question, re.IGNORECASE):
-        return 'asc'
-    return None
-
-def get_all_articles_sorted_by_date(order='desc'):
-    """
-    Fetch all articles from Qdrant and sort by date_published (order: 'asc' or 'desc').
-    """
-    client = get_qdrant_client()
-    # Scroll all points (no vector search)
-    points, _ = client.scroll(collection_name=QDRANT_COLLECTION, with_payload=True, limit=10000)
-    def parse_date(article):
-        d = article.get('date_published')
-        try:
-            return datetime.fromisoformat(d) if d else datetime.min
-        except Exception:
-            return datetime.min
-    articles = [p.payload for p in points]
-    articles = [a for a in articles if a.get('date_published')]
-    articles.sort(key=parse_date, reverse=(order=='desc'))
-    return articles
-
-def hybrid_search(question, top_k=20):
-    """
-    If the question is about latest/oldest, return articles sorted by date. Otherwise, do semantic search.
-    """
-    order = detect_date_sort_order(question)
-    if order:
-        articles = get_all_articles_sorted_by_date(order=order)
-        return articles[:top_k]
-    else:
-        return semantic_search(question, top_k=top_k)
-
-def semantic_search(question, top_k=20):
-    """
-    Embed the question, search Qdrant for top_k most similar articles, and return their payloads.
-    """
-    client = get_qdrant_client()
-    question_embedding = get_openai_embeddings([
-        truncate_to_max_tokens(question)
-    ])[0]
-    search_result = client.search(
-        collection_name=QDRANT_COLLECTION,
-        query_vector=question_embedding,
-        limit=top_k,
-        with_payload=True
-    )
-    articles = []
-    for hit in search_result:
-        payload = hit.payload
-        payload["score"] = hit.score
-        articles.append(payload)
-    return articles
-
-def generate_rag_answer(question, articles):
-    """
-    Call OpenAI LLM with the question and context from articles.
-    Returns the generated answer.
-    """
-    # Build the context string from the top articles
-    context = ""
-    for idx, a in enumerate(articles, 1):
-        context += (
-            f"[{idx}] Title: {a.get('title')}\n"
-            f"Author: {a.get('author')}\n"
-            f"Date: {a.get('date_published')}\n"
-            f"Tags: {', '.join(a.get('tags', []))}\n"
-            f"URL: {a.get('url')}\n"
-            f"Content: {a.get('text')[:1000]}...\n\n"
-        )
-    # Build the prompt
-    prompt = (
-        f"You are an expert assistant. Use the following blog articles as context to answer the user's question. "
-        f"Reference the articles by their [number] and include the URL in your answer when relevant.\n\n"
-        f"Context:\n{context}\n"
-        f"User question: {question}\n\n"
-        f"Answer (be concise, relevant, and include reference links):"
-    )
-    client = openai.OpenAI(api_key=OPENAI_API_KEY)
-    response = client.chat.completions.create(
-        model=OPENAI_LLM_MODEL,
-        messages=[
-            {"role": "system", "content": "You are a helpful assistant that answers questions using provided blog articles as context."},
-            {"role": "user", "content": prompt}
-        ],
-        max_tokens=400,
-        temperature=0.2,
-    )
-    return response.choices[0].message.content.strip() 
+    client.upsert(collection_name=QDRANT_COLLECTION, points=points) 

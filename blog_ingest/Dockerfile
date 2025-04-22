@@ -16,6 +16,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY blog_ingest ./blog_ingest
 ENV PYTHONPATH=/app
 # Default: run FastAPI app
-CMD ["uvicorn", "blog_ingest.main:app", "--host", "0.0.0.0", "--port", "8000"]
-# To run the scheduler, override CMD in docker-compose:
-# CMD ["python", "-m", "blog_ingest.scheduler"] 
+CMD ["uvicorn", "blog_ingest.main:app", "--host", "0.0.0.0", "--port", "8000"] 

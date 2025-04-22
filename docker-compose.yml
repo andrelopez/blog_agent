@@ -19,13 +19,3 @@ services:
     #   - EXAMPLE_ENV_VAR=value
     # depends_on:
     #   - postgres
-
-  scheduler:
-    build: ./blog_ingest
-    depends_on:
-      - blog_ingest
-      - pg-n8n
-      - qdrant
-    command: ["python", "-m", "blog_ingest.scheduler"]
-    env_file:
-      - .env
