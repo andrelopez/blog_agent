@@ -1,25 +1,37 @@
-from fastembed import TextEmbedding
+import openai
 from qdrant_client import QdrantClient
 from qdrant_client.models import PointStruct, VectorParams, Distance
 import os
 import uuid
-import openai
 import re
 from datetime import datetime
+import tiktoken
 
 QDRANT_HOST = os.getenv("QDRANT_HOST", "qdrant")
 QDRANT_PORT = int(os.getenv("QDRANT_PORT", 6333))
 QDRANT_COLLECTION = os.getenv("QDRANT_COLLECTION", "blog_articles")
-EMBED_MODEL = os.getenv("EMBED_MODEL", "BAAI/bge-base-en-v1.5")
-BATCH_SIZE = 50
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 OPENAI_LLM_MODEL = os.getenv("OPENAI_LLM_MODEL", "gpt-3.5-turbo")
+OPENAI_EMBED_MODEL = os.getenv("OPENAI_EMBED_MODEL", "text-embedding-3-small")
+BATCH_SIZE = 50
+MAX_EMBED_TOKENS = 8192
 
-def get_local_embedding_model():
-    return TextEmbedding(model_name=EMBED_MODEL)
+def get_openai_client():
+    return openai.OpenAI(api_key=OPENAI_API_KEY)
 
 def get_qdrant_client():
     return QdrantClient(host=QDRANT_HOST, port=QDRANT_PORT)
+
+def get_token_encoder():
+    return tiktoken.encoding_for_model(OPENAI_EMBED_MODEL)
+
+def truncate_to_max_tokens(text, max_tokens=MAX_EMBED_TOKENS):
+    encoding = get_token_encoder()
+    tokens = encoding.encode(text)
+    if len(tokens) > max_tokens:
+        tokens = tokens[:max_tokens]
+        text = encoding.decode(tokens)
+    return text
 
 def ensure_qdrant_collection(client, vector_size):
     if QDRANT_COLLECTION not in [c.name for c in client.get_collections().collections]:
@@ -28,22 +40,33 @@ def ensure_qdrant_collection(client, vector_size):
             vectors_config=VectorParams(size=vector_size, distance=Distance.COSINE)
         )
 
+def get_openai_embeddings(texts):
+    client = get_openai_client()
+    response = client.embeddings.create(
+        input=texts,
+        model=OPENAI_EMBED_MODEL
+    )
+    return [d.embedding for d in response.data]
+
 def embed_and_store_in_qdrant(articles):
-    model = get_local_embedding_model()
     # Get embedding size from a sample embedding
     sample_article = articles[0]
-    sample_text = f"{sample_article.get('title', '')}\n{sample_article.get('author', '')}\n{sample_article.get('date_published', '')}\n{sample_article.get('description', '')}\n{' '.join(sample_article.get('tags', []))}\n{sample_article['text']}"
-    sample_embedding = list(model.embed([sample_text]))[0]
+    sample_text = truncate_to_max_tokens(
+        f"{sample_article.get('title', '')}\n{sample_article.get('author', '')}\n{sample_article.get('date_published', '')}\n{sample_article.get('description', '')}\n{' '.join(sample_article.get('tags', []))}\n{sample_article['text']}"
+    )
+    sample_embedding = get_openai_embeddings([sample_text])[0]
     ensure_qdrant_collection(get_qdrant_client(), vector_size=len(sample_embedding))
     client = get_qdrant_client()
     points = []
     for i in range(0, len(articles), BATCH_SIZE):
         batch = articles[i:i+BATCH_SIZE]
         texts = [
-            f"{a.get('title', '')}\n{a.get('author', '')}\n{a.get('date_published', '')}\n{a.get('description', '')}\n{' '.join(a.get('tags', []))}\n{a['text']}"
+            truncate_to_max_tokens(
+                f"{a.get('title', '')}\n{a.get('author', '')}\n{a.get('date_published', '')}\n{a.get('description', '')}\n{' '.join(a.get('tags', []))}\n{a['text']}"
+            )
             for a in batch
         ]
-        embeddings = list(model.embed(texts))
+        embeddings = get_openai_embeddings(texts)
         for article, embedding in zip(batch, embeddings):
             point_id = str(uuid.uuid5(uuid.NAMESPACE_URL, article["url"]))
             points.append(PointStruct(
@@ -105,18 +128,16 @@ def semantic_search(question, top_k=20):
     """
     Embed the question, search Qdrant for top_k most similar articles, and return their payloads.
     """
-    model = get_local_embedding_model()
     client = get_qdrant_client()
-    # Embed the question
-    question_embedding = list(model.embed([question]))[0]
-    # Search Qdrant
+    question_embedding = get_openai_embeddings([
+        truncate_to_max_tokens(question)
+    ])[0]
     search_result = client.search(
         collection_name=QDRANT_COLLECTION,
         query_vector=question_embedding,
         limit=top_k,
         with_payload=True
     )
-    # Extract payloads (article metadata and text)
     articles = []
     for hit in search_result:
         payload = hit.payload

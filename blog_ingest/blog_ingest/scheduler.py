@@ -56,7 +56,7 @@ def run_ingestion_and_embedding():
 
 def main():
     scheduler = BlockingScheduler()
-    scheduler.add_job(run_ingestion_and_embedding, 'interval', days=1)
+    scheduler.add_job(run_ingestion_and_embedding, 'interval', minutes=1)
     logger.info("Scheduler started. Will run ingestion and embedding every 24 hours.")
     try:
         scheduler.start()

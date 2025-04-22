@@ -80,8 +80,7 @@ def fetch_and_parse_blogs():
             tags = [a.get_text(strip=True) for a in soup.find_all('a', rel='tag')]
             # Extract main text
             main = soup.find('article') or soup.find('main') or soup.body
-            pre_text = main.get_text(separator=' ', strip=True) if main else ''
-            text = f"Title: {title} - Author: {author} - Date created: {date_published} - Tags: {', '.join(tags)} - {pre_text}"
+            text = main.get_text(separator=' ', strip=True) if main else ''
             article = {
                 'url': url,
                 'title': title,
@@ -92,7 +91,7 @@ def fetch_and_parse_blogs():
                 'tags': tags,
                 'text': text,
                 'text_length': len(text),
-                'text_preview': pre_text[:200]
+                'text_preview': text[:200]
             }
             articles.append(article)
             insert_blog_article(conn, article)

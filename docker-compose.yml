@@ -26,6 +26,6 @@ services:
       - blog_ingest
       - pg-n8n
       - qdrant
-    command: python scheduler.py
+    command: ["python", "-m", "blog_ingest.scheduler"]
     env_file:
       - .env
