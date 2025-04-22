@@ -14,14 +14,21 @@ Clone the repo to your local machine by running the following command:
 git clone git@github.com:bitovi/n8n-getting-started.git
 ```
 
-### Step 2. Start the service
+### Step 2. Create your .env file
+Copy the example environment file to .env:
+
+```bash
+cp .env-example .env
+```
+
+### Step 3. Start the service
 Start the docker-compose service by running the following command:
 
 ```bash
 docker-compose up --build
 ```
 
-### Step 3. Validate the service is running
+### Step 4. Validate the service is running
 Watch the logs to ensure the service is running:
 
 ```bash
@@ -35,7 +42,7 @@ Editor is now accessible via:
 https://localhost:5678/
 ```
 
-### Step 4. Access the service
+### Step 5. Access the service
 Open a browser and navigate to the following URL: [https://localhost:5678/](https://localhost:5678/)
 
 Note: we use self-signed certificates for local development to enable Oauth callbacks for 3rd party integrations, e.g. Slack.
