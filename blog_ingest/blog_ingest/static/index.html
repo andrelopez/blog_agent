@@ -53,8 +53,9 @@
       questionInput.value = '';
       addMessage('<span class="italic text-gray-400">Thinking...</span>', 'bot');
       try {
-        const response = await fetch('https://localhost:5678/webhook-test/b8cd09dd-7146-4374-b0aa-29136d3af7der', {
+        const response = await fetch('https://localhost:5678/webhook-test/b8cd09dd-7146-4374-b0aa-29136d3af7de', {
           method: 'POST',
+          mode: 'no-cors',
           headers: {
             'Content-Type': 'application/json',
             'auth': 'test'

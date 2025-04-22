@@ -2,6 +2,13 @@
 
 set -e
 
+# If the first argument is 'bitovi', run the full stack
+if [ "$1" == "bitovi" ]; then
+    echo "Running Bitovi full stack: n8n, Postgres, Qdrant, Adminer"
+    docker compose -f docker-compose.yml -f Postgres/docker-compose.yml -f Qdrant/docker-compose.yml -f Adminer/docker-compose.yml up --build
+    exit 0
+fi
+
 # Check if at least one service is provided
 if [ "$#" -lt 1 ]; then
     echo "Usage: $0 <service1> <service2> ... <serviceN>"

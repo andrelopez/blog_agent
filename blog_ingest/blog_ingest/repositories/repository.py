@@ -30,6 +30,35 @@ def ensure_blog_articles_table(conn):
                 text TEXT
             );
         ''')
+        # Index for date sorting/filtering
+        cur.execute('''
+            CREATE INDEX IF NOT EXISTS idx_blog_articles_date_published
+            ON blog_articles(date_published DESC);
+        ''')
+        # Index for tag searches
+        cur.execute('''
+            CREATE INDEX IF NOT EXISTS idx_blog_articles_tags
+            ON blog_articles USING GIN (tags);
+        ''')
+        # Full-text search indexes
+        cur.execute('''
+            CREATE INDEX IF NOT EXISTS idx_blog_articles_text_search
+            ON blog_articles USING GIN (to_tsvector('english', text));
+        ''')
+        cur.execute('''
+            CREATE INDEX IF NOT EXISTS idx_blog_articles_title_search
+            ON blog_articles USING GIN (to_tsvector('english', title));
+        ''')
+        # Index for author queries
+        cur.execute('''
+            CREATE INDEX IF NOT EXISTS idx_blog_articles_author
+            ON blog_articles(author);
+        ''')
+        # Composite index for author+date queries
+        cur.execute('''
+            CREATE INDEX IF NOT EXISTS idx_blog_articles_author_date
+            ON blog_articles(author, date_published DESC);
+        ''')
         conn.commit()
 
 def insert_blog_article(conn, article):
@@ -62,7 +91,7 @@ def fetch_all_articles_from_db():
     try:
         conn = get_pg_connection()
         with conn.cursor() as cur:
-            cur.execute("SELECT url, title, date_published, date_modified, author, description, text FROM blog_articles")
+            cur.execute("SELECT url, title, date_published, date_modified, author, description, text FROM blog_articles ORDER BY date_published DESC")
             rows = cur.fetchall()
             articles = [
                 {
